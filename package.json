@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/InkoHX/nsfw-filter-bot#readme",
   "dependencies": {
-    "@tensorflow/tfjs-node-gpu": "^1.1.0",
-    "canvas": "^2.6.0",
-    "discord.js": "^11.5.1",
-    "nsfwjs": "^2.1.0"
+    "@tensorflow/tfjs-node": "^3.19.0",
+    "canvas": "^2.9.3",
+    "discord.js": "^14.2.0",
+    "nsfwjs": "^2.4.1"
   }
 }

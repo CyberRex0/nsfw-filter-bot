@@ -1,10 +1,16 @@
-const { Client, TextChannel, RichEmbed } = require('discord.js')
+const { Client, TextChannel, RichEmbed, EmbedBuilder, GatewayIntentBits, Colors, Embed } = require('discord.js')
 const { Image, createCanvas } = require('canvas')
 const { NSFWJS } = require('nsfwjs')
+const config = require('./config')
 
 const bot = new Client({
   disabledEvents: [
     'TYPING_START'
+  ],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessages
   ]
 })
 
@@ -14,9 +20,10 @@ const nsfwjs = new NSFWJS(modelUrl, { size: 299 })
 bot.on('ready', async () => {
   await nsfwjs.load()
     .catch(console.error)
+  console.log(`Logged in as ${bot.user.tag}!`)
 })
 
-bot.on('message', (message) => {
+bot.on('messageCreate', (message) => {
   if (!(message.channel instanceof TextChannel)) return // テキストチャンネルでない場合は無視
   if (message.channel.nsfw) return // 閲覧注意のチャンネルは無視
   if (!message.attachments.size) return // 添付ファイルがない場合は無視
@@ -37,12 +44,12 @@ bot.on('message', (message) => {
         if (result.className === 'Neutral' || result.className === 'Drawing') return // 問題なければ無視
         message.delete() // 画像を削除
           .then((msg) => {
-            msg.channel.send(new RichEmbed()
-              .setColor('RED')
+            msg.channel.send({embeds: [new EmbedBuilder()
+              .setColor(Colors.Red)
               .setDescription(`${message.author.tag} が送信した画像に不適切な内容が含まれている可能性があるため削除しました。`)
-              .addField('もっとも多く含まれていた要素', result.className)
-              .addField('不適切である確率', `${Math.round(result.probability * 100)}%`)
-            )
+              .addFields({name: 'もっとも多く含まれていた要素', value: result.className})
+              .addFields({name: '不適切である確率', value: `${Math.round(result.probability * 100)}%`})
+            ]})
           })
           .catch(console.error)
       })
@@ -51,4 +58,4 @@ bot.on('message', (message) => {
   image.onerror = (err) => console.error(err)
 })
 
-bot.login('your token.')
+bot.login(config.TOKEN)
